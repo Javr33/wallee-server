@@ -17,6 +17,7 @@ services:
       - "5000:5000"
     environment:
       - MONGO_URI=mongodb://db:27017/walle_db
+      - TZ=America/Guatemala
     depends_on:
       - db
     restart: always
