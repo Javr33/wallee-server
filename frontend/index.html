@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitácora Wall-E</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
+        h1 { color: #333; text-align: center; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
+        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
+        th { background-color: #007bff; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+    </style>
+</head>
+<body>
+
+    <h1>Bitácora de Eventos - Wall-E</h1>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Fecha y Hora</th>
+                <th>Acción Registrada</th>
+            </tr>
+        </thead>
+        <tbody id="tabla-logs">
+            </tbody>
+    </table>
+
+    <script>
+        // Esta función va a pedir los datos a tu servidor de Python
+        function cargarLogs() {
+            // Usamos la IP de tu servidor y el puerto de tu backend
+            fetch('http://159.223.152.192:5000/api/logs')
+                .then(response => response.json())
+                .then(datos => {
+                    const tabla = document.getElementById('tabla-logs');
+                    tabla.innerHTML = ''; // Limpiamos la tabla antes de actualizar
+                    
+                    datos.forEach(log => {
+                        const fila = `<tr>
+                                        <td>${log.fecha_hora}</td>
+                                        <td>${log.accion}</td>
+                                      </tr>`;
+                        tabla.innerHTML += fila;
+                    });
+                })
+                .catch(error => console.error('Error al cargar los logs:', error));
+        }
+
+        // Cargar los logs apenas se abre la página
+        cargarLogs();
+        // Recargar los datos cada 3 segundos (para que sea en tiempo real)
+        setInterval(cargarLogs, 3000);
+    </script>
+</body>
+</html>
