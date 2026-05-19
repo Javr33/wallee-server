@@ -5,15 +5,95 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitácora Wall-E</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #f4f4f9; padding: 20px; }
-        h1 { color: #333; text-align: center; }
-        table { width: 100%; border-collapse: collapse; margin-top: 20px; background: white; }
-        th, td { padding: 12px; border: 1px solid #ddd; text-align: left; }
-        th { background-color: #007bff; color: white; }
-        tr:nth-child(even) { background-color: #f2f2f2; }
+        /* Fondo espacial usando gradientes y estrellas generadas por CSS */
+        body { 
+            font-family: Arial, sans-serif; 
+            padding: 20px;
+            margin: 0;
+            min-height: 100vh;
+            background-color: #020611;
+            /* Simulación de nebulosa azul profunda */
+            background-image: 
+                radial-gradient(circle at 50% 80%, rgba(0, 163, 224, 0.15), transparent 60%),
+                radial-gradient(circle at 80% 20%, rgba(14, 42, 71, 0.4), transparent 50%),
+                /* Capa de estrellas lejanas */
+                radial-gradient(white, rgba(255,255,255,.2) 2px, transparent 40px),
+                radial-gradient(white, rgba(255,255,255,.15) 1px, transparent 30px),
+                radial-gradient(white, rgba(255,255,255,.1) 2px, transparent 40px);
+            background-size: 100% 100%, 100% 100%, 550px 550px, 350px 350px, 250px 250px;
+            background-repeat: no-repeat, no-repeat, repeat, repeat, repeat;
+            background-attachment: fixed;
+        }
+
+        /* Contenedor del Logo de la U */
+        .logo-container {
+            display: flex;
+            justify-content: center;
+            margin-bottom: 10px;
+        }
+
+        .logo-container img {
+            width: 150px;
+            height: auto;
+            /* Sutil brillo azul detrás del logo para integrarlo a la galaxia */
+            filter: drop-shadow(0 0 15px rgba(0, 163, 224, 0.4));
+        }
+
+        h1 { 
+            color: #E2E8F0; 
+            text-align: center; 
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.7);
+            margin-top: 5px;
+        }
+
+        /* Tabla con fondo plano mineral para que resalte sobre la galaxia */
+        table { 
+            width: 100%; 
+            border-collapse: collapse; 
+            margin-top: 20px; 
+            background-color: #161D26; 
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        th, td { 
+            padding: 12px; 
+            border: 1px solid #333F51; 
+            text-align: left; 
+        }
+
+        th { 
+            background-color: #B36230; 
+            color: #E2E8F0; 
+            font-weight: bold;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
+        }
+
+        td {
+            color: #E2E8F0;
+        }
+
+        /* Cebreado plano compatible con WALL-E */
+        tr:nth-child(odd) { 
+            background-color: #0F1622; 
+        }
+
+        tr:nth-child(even) { 
+            background-color: #161D26; 
+        }
+
+        /* Clases opcionales para cuando pintes los estados con JS */
+        .estado-planta { color: #52D078; font-weight: bold; }
+        .estado-alerta { color: #F06A38; font-weight: bold; }
+        .estado-eva { color: #63B3ED; }
     </style>
 </head>
 <body>
+
+    <div class="logo-container">
+        <img src="../LogoUni.png" alt="Logo Universidad">
+    </div>
 
     <h1>Bitácora de Eventos - Wall-E</h1>
     
@@ -29,19 +109,23 @@
     </table>
 
     <script>
-        // Esta función va a pedir los datos a tu servidor de Python
         function cargarLogs() {
-            // Usamos la IP de tu servidor y el puerto de tu backend
             fetch('http://159.223.152.192:5000/api/logs')
                 .then(response => response.json())
                 .then(datos => {
                     const tabla = document.getElementById('tabla-logs');
-                    tabla.innerHTML = ''; // Limpiamos la tabla antes de actualizar
+                    tabla.innerHTML = ''; 
                     
                     datos.forEach(log => {
+                        // Cambia las clases de los estados dinámicamente según el texto si lo deseas
+                        let estiloEstado = '';
+                        if(log.accion.includes('Planta')) estiloEstado = 'class="estado-planta"';
+                        else if(log.accion.includes('Directiva') || log.accion.includes('A-113')) estiloEstado = 'class="estado-alerta"';
+                        else if(log.accion.includes('Eva')) estiloEstado = 'class="estado-eva"';
+
                         const fila = `<tr>
                                         <td>${log.fecha_hora}</td>
-                                        <td>${log.accion}</td>
+                                        <td ${estiloEstado}>${log.accion}</td>
                                       </tr>`;
                         tabla.innerHTML += fila;
                     });
@@ -49,9 +133,7 @@
                 .catch(error => console.error('Error al cargar los logs:', error));
         }
 
-        // Cargar los logs apenas se abre la página
         cargarLogs();
-        // Recargar los datos cada 3 segundos (para que sea en tiempo real)
         setInterval(cargarLogs, 3000);
     </script>
 </body>
