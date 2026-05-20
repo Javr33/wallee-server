@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bitácora Wall-E</title>
     <style>
-        /* Fondo espacial usando gradientes y estrellas generadas por CSS */
+        /* Fondo espacial usando gradientes y estrellas generadas por CSS (DISEÑO ORIGINAL RESTAURADO) */
         body { 
             font-family: Arial, sans-serif; 
             padding: 20px;
@@ -46,7 +46,7 @@
             margin-top: 5px;
         }
 
-        /* NUEVOS ESTILOS: Panel de Control de Filtros */
+        /* Panel de Control de Filtros */
         .filter-panel {
             max-width: 100%;
             margin: 20px auto;
@@ -146,7 +146,6 @@
             background-color: #161D26; 
         }
 
-        /* Clases opcionales para cuando pintes los estados con JS */
         .estado-planta { color: #52D078; font-weight: bold; }
         .estado-alerta { color: #F06A38; font-weight: bold; }
         .estado-eva { color: #63B3ED; }
@@ -160,7 +159,6 @@
 
     <h1>Bitácora de Eventos - Wall-E</h1>
     
-    <!-- NUEVO: Panel Interactivo Frontend -->
     <div class="filter-panel">
         <input type="text" id="search-input" class="search-box" placeholder="Buscar acción en tiempo real...">
         <div class="filter-buttons">
@@ -168,6 +166,17 @@
             <button class="btn-filter" onclick="cambiarFiltro('Planta', this)">Plantas 🌱</button>
             <button class="btn-filter" onclick="cambiarFiltro('Alerta', this)">Alertas/Directivas ⚠️</button>
             <button class="btn-filter" onclick="cambiarFiltro('Eva', this)">Eva 🤖</button>
+        </div>
+    </div>
+
+    <div style="display: flex; gap: 15px; margin-bottom: 20px;">
+        <div style="flex: 1; background: rgba(22, 29, 38, 0.7); border: 1px solid #233145; padding: 15px; border-radius: 8px; text-align: center; backdrop-filter: blur(5px);">
+            <div style="color: #A0AEC0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Logs Visualizados</div>
+            <div id="stat-total" style="color: #63B3ED; font-size: 24px; font-weight: bold; margin-top: 5px;">0</div>
+        </div>
+        <div style="flex: 1; background: rgba(22, 29, 38, 0.7); border: 1px solid #233145; padding: 15px; border-radius: 8px; text-align: center; backdrop-filter: blur(5px);">
+            <div style="color: #A0AEC0; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Eventos Críticos</div>
+            <div id="stat-alertas" style="color: #E53E3E; font-size: 24px; font-weight: bold; margin-top: 5px;">0</div>
         </div>
     </div>
 
@@ -182,8 +191,17 @@
         </tbody>
     </table>
 
+    <div style="display: flex; justify-content: space-between; align-items: center; max-width: 100%; margin: 20px auto; padding: 12px 15px; background-color: rgba(22, 29, 38, 0.8); border: 1px solid #333F51; border-radius: 8px; color: #A0AEC0; font-size: 13px; backdrop-filter: blur(5px);">
+        <div>
+            <strong>Bitácora de Eventos Wall-E</strong> | UMG 2026<br>
+            <span style="color: #E2E8F0;">Desarrolladores: Javier Vela, Kabt´zin Velasco, Kevin Gabriel, Wendy Tomas (Sección B)</span>
+        </div>
+        <div style="font-size: 11px; text-align: right; color: #63B3ED;">
+            Servidor de Monitoreo Activo 🚀
+        </div>
+    </div>
+
     <script>
-        // Variables globales para mantener el estado de búsqueda local
         let logsLocales = [];
         let filtroActual = 'todos';
 
@@ -191,8 +209,8 @@
             fetch('http://159.223.152.192:5000/api/logs')
                 .then(response => response.json())
                 .then(datos => {
-                    logsLocales = datos; // Guardamos la copia de datos fresca del servidor
-                    renderizarTabla();   // Dibujamos la tabla aplicando los filtros activos
+                    logsLocales = datos; 
+                    renderizarTabla();   
                 })
                 .catch(error => console.error('Error al cargar los logs:', error));
         }
@@ -203,10 +221,12 @@
             
             tabla.innerHTML = ''; 
             
+            let contadorTotal = 0;
+            let contadorCriticos = 0;
+
             logsLocales.forEach(log => {
                 const textoAccion = log.accion.toLowerCase();
                 
-                // 1. Validar Filtro por Botón de Categoría
                 let pasaFiltroCategoria = false;
                 if (filtroActual === 'todos') {
                     pasaFiltroCategoria = true;
@@ -218,11 +238,14 @@
                     pasaFiltroCategoria = true;
                 }
 
-                // 2. Validar Filtro de Texto Escrito
                 const pasaBusquedaTexto = textoAccion.includes(busqueda);
 
-                // Si cumple ambas condiciones, lo mostramos
                 if (pasaFiltroCategoria && pasaBusquedaTexto) {
+                    contadorTotal++;
+                    if (log.accion.includes('Directiva') || log.accion.includes('A-113') || log.accion.includes('Alerta')) {
+                        contadorCriticos++;
+                    }
+
                     let estiloEstado = '';
                     if(log.accion.includes('Planta')) estiloEstado = 'class="estado-planta"';
                     else if(log.accion.includes('Directiva') || log.accion.includes('A-113')) estiloEstado = 'class="estado-alerta"';
@@ -235,23 +258,20 @@
                     tabla.innerHTML += fila;
                 }
             });
+
+            document.getElementById('stat-total').innerText = contadorTotal;
+            document.getElementById('stat-alertas').innerText = contadorCriticos;
         }
 
-        // Ejecutar el filtrado en tiempo real al escribir
         document.getElementById('search-input').addEventListener('input', renderizarTabla);
 
-        // Controlar el cambio estético y lógico de los botones de filtro
         function cambiarFiltro(categoria, boton) {
             filtroActual = categoria;
-            
-            // Quitar clase activa a todos los botones y ponérsela al seleccionado
             document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
             boton.classList.add('active');
-            
             renderizarTabla();
         }
 
-        // Inicialización y Loop de refresco automático
         cargarLogs();
         setInterval(cargarLogs, 3000);
     </script>
