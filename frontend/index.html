@@ -46,11 +46,74 @@
             margin-top: 5px;
         }
 
+        /* NUEVOS ESTILOS: Panel de Control de Filtros */
+        .filter-panel {
+            max-width: 100%;
+            margin: 20px auto;
+            background-color: #111823;
+            padding: 15px;
+            border-radius: 8px;
+            border: 1px solid #233145;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 250px;
+            padding: 10px 15px;
+            background-color: #070b12;
+            border: 1px solid #333F51;
+            border-radius: 5px;
+            color: #E2E8F0;
+            font-size: 14px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+
+        .search-box:focus {
+            border-color: #B36230;
+        }
+
+        .filter-buttons {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .btn-filter {
+            background-color: #161D26;
+            color: #A0AEC0;
+            border: 1px solid #333F51;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 13px;
+            font-weight: bold;
+            transition: all 0.2s ease;
+        }
+
+        .btn-filter:hover {
+            background-color: #233145;
+            color: #E2E8F0;
+        }
+
+        .btn-filter.active {
+            background-color: #B36230;
+            color: white;
+            border-color: #B36230;
+            box-shadow: 0 0 10px rgba(179, 98, 48, 0.4);
+        }
+
         /* Tabla con fondo plano mineral para que resalte sobre la galaxia */
         table { 
             width: 100%; 
             border-collapse: collapse; 
-            margin-top: 20px; 
+            margin-top: 10px; 
             background-color: #161D26; 
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.7);
             border-radius: 8px;
@@ -97,42 +160,98 @@
 
     <h1>Bitácora de Eventos - Wall-E</h1>
     
+    <!-- NUEVO: Panel Interactivo Frontend -->
+    <div class="filter-panel">
+        <input type="text" id="search-input" class="search-box" placeholder="Buscar acción en tiempo real...">
+        <div class="filter-buttons">
+            <button class="btn-filter active" onclick="cambiarFiltro('todos', this)">Todos</button>
+            <button class="btn-filter" onclick="cambiarFiltro('Planta', this)">Plantas 🌱</button>
+            <button class="btn-filter" onclick="cambiarFiltro('Alerta', this)">Alertas/Directivas ⚠️</button>
+            <button class="btn-filter" onclick="cambiarFiltro('Eva', this)">Eva 🤖</button>
+        </div>
+    </div>
+
     <table>
         <thead>
             <tr>
-                <th>Fecha y Hora</th>
+                <th style="width: 25%;">Fecha y Hora</th>
                 <th>Acción Registrada</th>
             </tr>
         </thead>
         <tbody id="tabla-logs">
-            </tbody>
+        </tbody>
     </table>
 
     <script>
+        // Variables globales para mantener el estado de búsqueda local
+        let logsLocales = [];
+        let filtroActual = 'todos';
+
         function cargarLogs() {
             fetch('http://159.223.152.192:5000/api/logs')
                 .then(response => response.json())
                 .then(datos => {
-                    const tabla = document.getElementById('tabla-logs');
-                    tabla.innerHTML = ''; 
-                    
-                    datos.forEach(log => {
-                        // Cambia las clases de los estados dinámicamente según el texto si lo deseas
-                        let estiloEstado = '';
-                        if(log.accion.includes('Planta')) estiloEstado = 'class="estado-planta"';
-                        else if(log.accion.includes('Directiva') || log.accion.includes('A-113')) estiloEstado = 'class="estado-alerta"';
-                        else if(log.accion.includes('Eva')) estiloEstado = 'class="estado-eva"';
-
-                        const fila = `<tr>
-                                        <td>${log.fecha_hora}</td>
-                                        <td ${estiloEstado}>${log.accion}</td>
-                                      </tr>`;
-                        tabla.innerHTML += fila;
-                    });
+                    logsLocales = datos; // Guardamos la copia de datos fresca del servidor
+                    renderizarTabla();   // Dibujamos la tabla aplicando los filtros activos
                 })
                 .catch(error => console.error('Error al cargar los logs:', error));
         }
 
+        function renderizarTabla() {
+            const tabla = document.getElementById('tabla-logs');
+            const busqueda = document.getElementById('search-input').value.toLowerCase();
+            
+            tabla.innerHTML = ''; 
+            
+            logsLocales.forEach(log => {
+                const textoAccion = log.accion.toLowerCase();
+                
+                // 1. Validar Filtro por Botón de Categoría
+                let pasaFiltroCategoria = false;
+                if (filtroActual === 'todos') {
+                    pasaFiltroCategoria = true;
+                } else if (filtroActual === 'Planta' && log.accion.includes('Planta')) {
+                    pasaFiltroCategoria = true;
+                } else if (filtroActual === 'Alerta' && (log.accion.includes('Directiva') || log.accion.includes('A-113'))) {
+                    pasaFiltroCategoria = true;
+                } else if (filtroActual === 'Eva' && log.accion.includes('Eva')) {
+                    pasaFiltroCategoria = true;
+                }
+
+                // 2. Validar Filtro de Texto Escrito
+                const pasaBusquedaTexto = textoAccion.includes(busqueda);
+
+                // Si cumple ambas condiciones, lo mostramos
+                if (pasaFiltroCategoria && pasaBusquedaTexto) {
+                    let estiloEstado = '';
+                    if(log.accion.includes('Planta')) estiloEstado = 'class="estado-planta"';
+                    else if(log.accion.includes('Directiva') || log.accion.includes('A-113')) estiloEstado = 'class="estado-alerta"';
+                    else if(log.accion.includes('Eva')) estiloEstado = 'class="estado-eva"';
+
+                    const fila = `<tr>
+                                    <td>${log.fecha_hora}</td>
+                                    <td ${estiloEstado}>${log.accion}</td>
+                                  </tr>`;
+                    tabla.innerHTML += fila;
+                }
+            });
+        }
+
+        // Ejecutar el filtrado en tiempo real al escribir
+        document.getElementById('search-input').addEventListener('input', renderizarTabla);
+
+        // Controlar el cambio estético y lógico de los botones de filtro
+        function cambiarFiltro(categoria, boton) {
+            filtroActual = categoria;
+            
+            // Quitar clase activa a todos los botones y ponérsela al seleccionado
+            document.querySelectorAll('.btn-filter').forEach(btn => btn.classList.remove('active'));
+            boton.classList.add('active');
+            
+            renderizarTabla();
+        }
+
+        // Inicialización y Loop de refresco automático
         cargarLogs();
         setInterval(cargarLogs, 3000);
     </script>
