@@ -1,8 +1,18 @@
-# Usar Nginx como servidor web ligero
-FROM nginx:alpine
+# Usamos una versión oficial y ligera de Python
+FROM python:3.9-slim
 
-# Copiar nuestra página web a la carpeta pública de Nginx
-COPY index.html /usr/share/nginx/html/index.html
+# Creamos una carpeta de trabajo dentro del contenedor
+WORKDIR /app
 
-# Exponer el puerto 80
-EXPOSE 80
+# Copiamos SOLO el requirements.txt primero (es una buena práctica)
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiamos el resto de nuestro código (app.py, index.html, logo, etc.)
+COPY . .
+
+# Abrimos el puerto 5000
+EXPOSE 5000
+
+# Le decimos qué comando ejecutar al encender
+CMD ["python", "app.py"]
