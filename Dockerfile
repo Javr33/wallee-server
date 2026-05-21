@@ -5,7 +5,7 @@ FROM python:3.9-slim
 WORKDIR /app
 
 # Copiamos el archivo requirements.txt y descargamos las librerías
-COPY requirements.txt .
+COPY requirements.txt , LogoUni.png .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copiamos el resto de nuestro código (app.py)
