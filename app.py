@@ -60,7 +60,7 @@ def registrar_evento():
 @app.route('/api/logs', methods=['GET'])
 def obtener_logs():
     try:
-        # Usamos la variable "coleccion" que definiste arriba
+        # Usamos la variable "coleccion" que se definió arriba
         logs = list(coleccion.find({}, {"_id": 0}).sort("_id", -1).limit(50))
         return jsonify(logs)
     except Exception as e:
