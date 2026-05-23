@@ -12,16 +12,6 @@
 
 ---
 
-## 📑 Índice
-1. [Descripción del Proyecto](#-descripción-del-proyecto)
-2. [Arquitectura de Microservicios](#-arquitectura-de-microservicios)
-3. [Infraestructura en la Nube (VPS)](#-infraestructura-en-la-nube-vps)
-4. [Mando de Control (Frontend Móvil)](#-mando-de-control-frontend-móvil)
-5. [Endpoints de la API (Backend)](#-endpoints-de-la-api-backend)
-6. [Instrucciones de Despliegue](#-instrucciones-de-despliegue)
-7. [Pruebas de Tolerancia a Fallos](#-pruebas-de-tolerancia-a-fallos)
-
----
 
 ## 📖 Descripción del Proyecto
 Este repositorio contiene la arquitectura completa (Backend, Frontend y Base de Datos) para el sistema de telemetría y control del robot explorador **Wall-E**. El diseño se fundamenta en los principios de Sistemas Operativos Distribuidos, utilizando contenedores para aislar procesos, asegurar la persistencia de datos y garantizar una alta disponibilidad.
