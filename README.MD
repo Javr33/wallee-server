@@ -39,13 +39,7 @@ El sistema está construido y orquestado 100% mediante `docker-compose`, separan
 
 ---
 
-## 📱 Mando de Control (Frontend Móvil)
-Desarrollada en **MIT App Inventor**, la tablet funciona como el "Cerebro Remoto" de Wall-E, ejecutando operaciones en dos vías de forma simultánea:
 
-1. **Hardware Control (< 100ms):** Envía caracteres codificados (letras) directamente al microcontrolador (Arduino/ESP8266) a través de sockets TCP/UDP para el control físico de motores y servos.
-2. **Telemetría Cloud:** Ejecuta una petición asíncrona `HTTP POST` hacia nuestro Droplet en DigitalOcean, con el *Header* `Content-Type: application/x-www-form-urlencoded`, enviando un *payload* estructurado (`evento=Accion`).
-
----
 
 ## 🌐 Endpoints de la API (Backend)
 El backend procesa y audita el tráfico bajo el puerto `5000`.
