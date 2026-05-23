@@ -78,23 +78,6 @@ El backend procesa y audita el tráfico bajo el puerto `5000`.
 4. Consultar los logs en tiempo real (auditoría):
     ```bash
     docker compose logs -f backend
-## 🧪 Pruebas de Tolerancia a Fallos
-El proyecto fue diseñado para soportar contingencias. Puedes corroborar la independencia de los microservicios ejecutando:
-
-1. Caida del visualizador
-   ```bash
-   docker compose stop frontend
-   ```
-   Resultado: El sitio web colapsa, pero la aplicación móvil sigue controlando al robot y el backend sigue guardando información de forma oculta.
-
-2. Caída del Almacenamiento
-    ```bash
-   docker compose stop db
-   ```
-   Resultado: El almacenamiento falla, pero los motores físicos de Wall-E no se detienen. El backend maneja el error internamente (Connection refused), devuelve un estatus 500 controlado y no colapsa.
-
-3. Caída del Motor Lógico
-    ```bash
    docker compose stop backend
    ```
    Resultado: Imposibilidad de registro temporal. La aplicación móvil reporta Error 1103, el visualizador web queda congelado, pero la infraestructura física sigue en pie.
