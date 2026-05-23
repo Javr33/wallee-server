@@ -1,4 +1,4 @@
-# 🤖 Proyecto Wall-E: Sistema de Telemetría y Control Cloud
+
 
 ![Arquitectura de Microservicios](https://img.shields.io/badge/Arquitectura-Microservicios-blue)
 ![Docker](https://img.shields.io/badge/Despliegue-Docker-2496ED?logo=docker&logoColor=white)
